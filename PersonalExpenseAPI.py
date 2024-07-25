@@ -29,7 +29,9 @@ def users_to_json(users):
         'user_email': users['user_email'],
         'user_pass': users['user_pass'],
         'user_id': users['user_id'],
-        'user_name': users['user_name']
+        'user_name': users['user_name'],
+        'wallet':users['wallet'],
+        'profile_img':users['profile_img']
     }
 
 # Function to convert MongoDB expense data to JSON
@@ -110,10 +112,10 @@ def get_users():
     return jsonify([users_to_json(user) for user in users])
 
 # GET a single user by ID
-@app.route('/api/users/<int:user_id>', methods=['GET'])
+@app.route('/api/users/<string:user_email>', methods=['GET'])
 @token_required
-def get_user(user_id):
-    user = users_collection.find_one({'user_id': user_id})
+def get_user(user_email):
+    user = users_collection.find_one({'user_email': user_email})
     if user is None:
         return jsonify({"message": "User not found"}), 404
     return jsonify(users_to_json(user))
@@ -147,6 +149,8 @@ def create_user():
         'user_pass': request.json['user_pass'],
         'user_email': user_email,
         'user_name': request.json['user_name'],
+        'wallet': 0,
+        'profile_img':1
     }
     result = users_collection.insert_one(new_user)
     new_user['_id'] = str(result.inserted_id)
@@ -163,7 +167,9 @@ def update_user(user_id):
     update_data = {
         'user_pass': request.json.get('user_pass', user['user_pass']),
         'user_email': request.json.get('user_email', user['user_email']),
-        'user_name': request.json.get('user_name', user['user_name'])
+        'user_name': request.json.get('user_name', user['user_name']),
+        'profile_img': request.json.get('profile_img', user['profile_img']),
+        'wallet': request.json.get('wallet', user['wallet'])
     }
     users_collection.update_one({'user_id': user_id}, {'$set': update_data})
     updated_user = users_collection.find_one({'user_id': user_id})
