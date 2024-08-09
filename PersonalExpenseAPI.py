@@ -175,14 +175,29 @@ def update_user(user_id):
     updated_user = users_collection.find_one({'user_id': user_id})
     return jsonify(users_to_json(updated_user))
 
-# DELETE a user
+# DELETE a user along with all their expenses
 @app.route('/api/users/<int:user_id>', methods=['DELETE'])
 @token_required
 def delete_user(user_id):
-    result = users_collection.delete_one({'user_id': user_id})
-    if result.deleted_count == 0:
-        return jsonify({"message": "User not found"}),404
-    return jsonify({"message": "User deleted successfully"}), 200
+    # First, delete all expenses associated with the user
+    expenses_result = expenses_collection.delete_many({'user_id': user_id})
+
+    # Then, delete the user
+    user_result = users_collection.delete_one({'user_id': user_id})
+
+    if user_result.deleted_count == 0:
+        return jsonify({"message": "User not found"}), 404
+
+    if expenses_result.deleted_count > 0:
+        return jsonify({
+            "message": "User and associated expenses deleted successfully",
+            "expenses_deleted": expenses_result.deleted_count
+        }), 200
+    else:
+        return jsonify({
+            "message": "User deleted successfully, but no associated expenses found"
+        }), 200
+
 
 # GET user validation
 @app.route('/api/user', methods=['POST'])
