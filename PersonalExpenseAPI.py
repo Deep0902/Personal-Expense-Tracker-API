@@ -163,6 +163,12 @@ def update_user(user_id):
     user = users_collection.find_one({'user_id': user_id})
     if user is None:
         return jsonify({"message": "User does not exist"}),404
+    new_email = request.json.get('user_email', user['user_email'])
+
+    # Check if the new email is already in use by another user
+    email_check = users_collection.find_one({'user_email': new_email, 'user_id': {'$ne': user_id}})
+    if email_check:
+        return jsonify({"message": "Email already in use"}), 400
     
     update_data = {
         'user_pass': request.json.get('user_pass', user['user_pass']),
