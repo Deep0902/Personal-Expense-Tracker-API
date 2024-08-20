@@ -31,7 +31,8 @@ def users_to_json(users):
         'user_id': users['user_id'],
         'user_name': users['user_name'],
         'wallet':users['wallet'],
-        'profile_img':users['profile_img']
+        'profile_img':users['profile_img'],
+        'is_user_blocked': users['is_user_blocked']
     }
 
 # Function to convert MongoDB expense data to JSON
@@ -150,7 +151,8 @@ def create_user():
         'user_email': user_email,
         'user_name': request.json['user_name'],
         'wallet': 0,
-        'profile_img':1
+        'profile_img':1,
+        'is_user_blocked': 'false',
     }
     result = users_collection.insert_one(new_user)
     new_user['_id'] = str(result.inserted_id)
@@ -175,7 +177,9 @@ def update_user(user_id):
         'user_email': request.json.get('user_email', user['user_email']),
         'user_name': request.json.get('user_name', user['user_name']),
         'profile_img': request.json.get('profile_img', user['profile_img']),
-        'wallet': request.json.get('wallet', user['wallet'])
+        'wallet': request.json.get('wallet', user['wallet']),
+        'is_user_blocked': request.json.get('is_user_blocked', user['is_user_blocked']),
+
     }
     users_collection.update_one({'user_id': user_id}, {'$set': update_data})
     updated_user = users_collection.find_one({'user_id': user_id})
@@ -203,7 +207,7 @@ def delete_user(user_id):
         return jsonify({
             "message": "User deleted successfully, but no associated expenses found"
         }), 200
-
+    
 
 # GET user validation
 @app.route('/api/user', methods=['POST'])
