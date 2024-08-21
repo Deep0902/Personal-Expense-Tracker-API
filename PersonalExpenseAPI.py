@@ -130,6 +130,7 @@ def create_user():
         return jsonify({"message": "Enter all details"}), 400
 
     user_email = request.json['user_email']
+    newUserBlocked: bool = False
     
     # Determine new user_id
     if 'user_id' in request.json:
@@ -152,7 +153,7 @@ def create_user():
         'user_name': request.json['user_name'],
         'wallet': 0,
         'profile_img':1,
-        'is_user_blocked': 'false',
+        'is_user_blocked': newUserBlocked,
     }
     result = users_collection.insert_one(new_user)
     new_user['_id'] = str(result.inserted_id)
