@@ -16,7 +16,7 @@ CORS(app)
 SECURE_TOKEN = 'my_secure_token'
 
 # MongoDB connection
-# client = MongoClient('mongodb+srv://Deep0902:Siemens123%40@deep0902.214cie0.mongodb.net/?retryWrites=true&w=majority&appName=Deep0902')
+# client = MongoClient('mongodb+srv://Deep0902:Siemens123%40@deep0902.214cie0.mongodb.net/.')
 client = MongoClient('mongodb://localhost:27017/')
 db = client.expense_tracker
 users_collection = db.users
@@ -225,7 +225,7 @@ def validate_user():
     if user:
         return jsonify({"valid": True}), 200
     else:
-        return jsonify({"valid": False}), 401
+        return jsonify({"valid": False}), 404
 
 #---------------------------------------------------------EXPENSES-----------------------------------------------
 # GET all expenses
